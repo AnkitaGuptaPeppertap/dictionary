@@ -77,17 +77,14 @@ WSGI_APPLICATION = 'dictionary.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
+import dj_database_url
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'dictionary',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
-        'PORT': '5432',
-    }
-}
+DATABASES = {'default': dj_database_url.config()}
+
+try:
+  from local_settings import *
+except Exception as e:
+  pass
 
 
 # Internationalization
