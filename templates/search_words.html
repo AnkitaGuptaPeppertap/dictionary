@@ -68,6 +68,7 @@
                                         <tr>
                                             <td>{{ forloop.counter }}.</td>
                                             <td>{{ word.word }}</td>
+                                            <td id="{{ word.pk }}" class="delete"><i class="si si-close"></i></td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>
@@ -154,6 +155,20 @@
                     console.log(err.Message);
                 });
             }
+        });
+
+        $('.delete').on('click', function(e){
+            var clicked = $(this);
+            console.log('delete clicked');
+            parent = clicked.parents('tr');
+            var pk = clicked.attr('id');
+            $.ajax({
+               type: 'POST',
+                url: location.href,
+                data: {'delete': true, 'bookmark_id': pk, 'csrfmiddlewaretoken': "{{ csrf_token }}"}
+            }).success(function(response, textStatus, jqXHR){
+                $('.table').load(location.href + " .table");
+            });
         });
     </script>
 </body>

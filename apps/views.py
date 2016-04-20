@@ -31,5 +31,12 @@ def search_words(request, *args, **kwargs):
                 else:
                     content = {"message": "No word specified", "status": "error"}
                 return get_json_response(content)
+
+            elif request.POST.get('delete'):
+                bookmark_id = request.POST.get('bookmark_id')
+                print "id", bookmark_id
+                bookmark = BookmarkWord.objects.filter(pk=int(bookmark_id)).first().delete()
+                content = {"message": "Bookmark deleted!"}
+                return get_json_response(content)
     else:
         return render(request, template, {"msg": "No request"})
