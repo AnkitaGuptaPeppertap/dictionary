@@ -1,0 +1,160 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dictionary</title>
+    <link rel="stylesheet" href="{% static 'bootstrap-3.3.5/css/bootstrap-theme.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-3.3.5/css/bootstrap.min.css' %}" type="text/css"/>
+    <link rel="stylesheet" href="{% static 'one-ui-assets/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" id="css-main" href="{% static 'one-ui-assets/css/oneui.min.css' %}">
+    <link href="{% static 'js/pace-1.0.2/themes/blue/pace-theme-minimal.css' %}" rel="stylesheet" />
+</head>
+<body>
+    <header id="header-navbar" class="content-mini content-mini-full">
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#nav-menu" aria-expanded="false" aria-controls="navbar">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#">
+                        <i class="si si-book-open fa-2x"></i>&nbsp; &nbsp;
+                        Dictionary
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container-fluid border-b">
+        <div class="content">
+            <div class="row">
+                <div class="col-md-8 col-xs-12 col-sm-6">
+                    <div class="block">
+                        <div class="block-content block-content-narrow block-content-full bg-amethyst-lighter">
+                            <form class="form-inline">
+                                <div class="form-group">
+                                    <label class="sr-only" for="term">Search Word:</label>
+                                    <input type="search" class="form-control" id="term" placeholder="Search Here for word's definitions">
+                                </div>
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary btn-sm search">Search</button>
+                                </div>
+                                <div class="form-group pull-right">
+                                    <button type="button" class="btn btn-sm btn-default" id="bookmark">
+                                        Bookmark Me!
+                                        <i class="fa fa-bookmark fa-2x"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="block-content bg-grey-lighter">
+                            <ul id="definitions" class="list-group">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-xs-6 col-sm-6">
+                    <div class="block">
+                        <div class="block-header bg-amethyst-lighter">
+                            <h3 class="block-title">Bookmarks &nbsp;<span class="badge badge-success">{{ count }}</span></h3>
+                        </div>
+                        <div class="block-content">
+                            <table class="table table-borderless table-striped">
+                                <tbody>
+                                    {% for word in bookmarks %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}.</td>
+                                            <td>{{ word.word }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script src="{% static 'bootstrap-3.3.5/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/pace-1.0.2/pace.min.js' %}"></script>
+    <script src="{% static 'one-ui-assets/js/oneui.min.js' %}"></script>
+    <script type='text/javascript'>
+        $('.search').on('click', function (e) {
+            var term = $('#term').val();
+            $.ajax({
+               type: 'POST',
+                url: location.href,
+                data: {'term': term, 'csrfmiddlewaretoken': "{{ csrf_token }}"}
+            }).success(function(response, textStatus, jqXHR){
+                console.log(response['message']);
+                if (response['status'] == 'ok'){
+                    console.log('word saved');
+                }
+                else if (response['status'] == 'error'){
+                    console.log('error in saving word');
+                }
+            });
+            var settings = {
+                "async": true,
+                "crossDomain": true,
+                "url": "https://mashape-community-urban-dictionary.p.mashape.com/define?term=" + term,
+                "method": "GET",
+                "headers": {
+                    "x-mashape-key": "VrZBZyMZUWmshpR4iecrjq6XQCmnp1Oar7QjsnbknMXfI5U2IS",
+                    "accept": "application/json",
+                    "cache-control": "no-cache"
+                },
+                success: function(data){
+                    var $definitions = $("#definitions");
+
+                    $definitions.children('li').remove();
+                    $definitions.children('br').remove();
+
+                    var list_var = data['list'];
+                    $.each(list_var, function(index, item) {
+                        var $defs = $('<li class="list-group-item">').text(item.definition);
+                        $("#definitions").append($defs);
+                    });
+                },
+                error: function(xhr, status, error){
+                    var err = eval("(" + xhr.responseText + ")");
+                    alert(err.Message);
+                }
+            };
+
+            $.ajax(settings);
+            return false;
+        });
+
+        $('#bookmark').on('click', function(e){
+            console.log('bookmark me');
+            var x = confirm('Are you sure you want to bookmark this?');
+            var term = $('#term').val();
+            if (x == true) {
+                $.ajax({
+                    type: 'POST',
+                    url: location.href,
+                    data: {'bookmark': true, 'csrfmiddlewaretoken': "{{ csrf_token }}", "word": term}
+                }).success(function (response, textStatus, jqXHR) {
+                    alert(response['message']);
+                    if (response['status'] == 'ok') {
+                        console.log("done");
+                        location.reload();
+                    }
+                    else if (response['status'] == 'error'){
+                        console.log('error ' + response['message']);
+                    }
+                }).error(function(xhr, status, error){
+                    var err = eval("(" + xhr.responseText + ")");
+                    console.log(err.Message);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
