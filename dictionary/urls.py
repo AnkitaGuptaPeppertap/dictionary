@@ -23,5 +23,7 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^search/$', search_words, name="search_words"),
     url(r'^login/$', login_user, name="login"),
+    url(r'^logout/$', logout_user, name="logout"),
+    url(r'^signup/$', add_user, name="signup_user"),
     url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT})
 ]

@@ -1,8 +1,9 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
+from apps.forms import AddUserForm
 from apps.models import BookmarkWord, SearchedWord
-from utils.general_methods import get_json_response
+from utils.general_methods import get_json_response, build_url
 
 
 def login_user(request, *args, **kwargs):
@@ -23,6 +24,32 @@ def login_user(request, *args, **kwargs):
             return render(request, template, {'status': 'WARNING', 'msg': 'Invalid Credentials.'})
 
     return render(request, template, {})
+
+def logout_user(request, *args, **kwargs):
+    next_url = request.GET.get('next')
+    logout(request)
+    if next_url:
+        return redirect(build_url('login', get={"next": next_url}))
+    else:
+        return redirect('login')
+
+def add_user(request, *args, **kwargs):
+    template= "add_user.html"
+    context = {}
+    if request.method == 'GET':
+        user_form = AddUserForm()
+        context['user_form'] = user_form
+        return render(request, template, context)
+    elif request.method == 'POST':
+        user_form = AddUserForm(request.POST)
+        if user_form.is_valid():
+            new_user = user_form.save()
+            context['user_form'] = user_form
+            context['form_saved'] = 'User created successfully!!'
+            return render(request, template, context)
+        else:
+            return render(request, template, {'user_form': user_form})
+    return render(request, template, {'msg': 'Cannot create a new user at present.'})
 
 @login_required(login_url='/login/')
 def search_words(request, *args, **kwargs):

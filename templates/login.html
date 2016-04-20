@@ -45,6 +45,8 @@
             <button class="btn btn-success btn-block">SUBMIT</button>
             <input type="hidden" name="next" value="{{ next|escape }}"/>
         </form>
+        <br>
+        <button type="button" onclick="location.href='{% url 'signup_user' %}'" class="btn btn-default btn-block">Sign Up</button>
     </div>
 </div>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
