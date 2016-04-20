@@ -1,8 +1,30 @@
-from django.shortcuts import render
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
 from apps.models import BookmarkWord, SearchedWord
 from utils.general_methods import get_json_response
 
 
+def login_user(request, *args, **kwargs):
+    template = 'login.html'
+    next = request.GET.get('next', '/search/')
+
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                return redirect(next)
+            else:
+                return render(request, template, {'status': 'WARNING', 'msg': 'Deactivated User.'})
+        else:
+            return render(request, template, {'status': 'WARNING', 'msg': 'Invalid Credentials.'})
+
+    return render(request, template, {})
+
+@login_required(login_url='/login/')
 def search_words(request, *args, **kwargs):
     template = 'search_words.html'
     if request.method == 'GET':

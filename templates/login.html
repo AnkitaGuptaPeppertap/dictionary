@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link rel="stylesheet" href="{% static 'bootstrap-3.3.5/css/bootstrap.min.css' %}" type="text/css"/>
+    <style>
+        body {
+            background: url("{% static 'img/bg.png' %}");
+        }
+
+        .wrapper {
+            position: absolute;
+            max-width: 200px;
+            height: 80%;
+            margin: 0 auto;
+            bottom: 0;
+            right: 0;
+            left: 0;
+        }
+        .login_form{
+            margin: 0 10px;
+        }
+        .edit_box{
+            height: 40px;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="wrapper">
+        <form action="" method="post" class="form login_form">
+            {% csrf_token %}
+            <div class="form-group">
+                <input type="text" name="username" value="" id="username" placeholder="Username"
+                       class="form-control edit_box">
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" value="" id="password" placeholder="Password"
+                       class="form-control edit_box">
+            </div>
+            <button class="btn btn-success btn-block">SUBMIT</button>
+            <input type="hidden" name="next" value="{{ next|escape }}"/>
+        </form>
+    </div>
+</div>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script src="{% static 'bootstrap-3.3.5/js/bootstrap.min.js' %}"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var status = "{{ status }}";
+        if (status == 'WARNING') {
+            alert('{{ msg }}');
+        }
+    });
+</script>
+</body>
+</html>
