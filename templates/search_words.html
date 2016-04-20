@@ -151,8 +151,7 @@
                 }).success(function (response, textStatus, jqXHR) {
                     alert(response['message']);
                     if (response['status'] == 'ok') {
-                        console.log("done");
-                        location.reload();
+                        $('.table').load(location.href + " .table");
                     }
                     else if (response['status'] == 'error'){
                         console.log('error ' + response['message']);
